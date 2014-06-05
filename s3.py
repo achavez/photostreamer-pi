@@ -3,6 +3,10 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
 def connect():
+    """
+    Return a connected S3 bucket based on settings in
+    config.cfg.
+    """
     config = ConfigParser.ConfigParser()
     config.readfp(open('config.cfg'))
     aws_access_key = config.get('s3', 'access_key')
@@ -13,7 +17,10 @@ def connect():
     return bucket
 
 def save(src, dest):
-	bucket = connect()
+    """
+    Save a file to S3 and return the S3 object.
+    """
+    bucket = connect()
     s3 = Key(bucket)
     s3.key = dest
     s3.set_contents_from_filename(src)
