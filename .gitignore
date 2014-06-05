@@ -1,0 +1,9 @@
+# Mac OSX system files
+.DS_Store
+
+# Ignore photo directories
+thumbs/
+full/
+
+# Ignore populated config file
+config.cfg
