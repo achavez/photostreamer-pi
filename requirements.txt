@@ -2,3 +2,4 @@
 'pgmagick >= 0.5.7'
 'requests >= 2.3.0'
 'exifread >= 1.4.2'
+'pickledb >= 0.3'

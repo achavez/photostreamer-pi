@@ -2,58 +2,73 @@
 import os
 import time
 from pgmagick import Image
-import json
-import requests
 import exifread
+import ConfigParser
 
 import s3
+import server
 
 sender = 0
 
-def generate_key(orig_name):
+def generate_key(fileName):
+    """
+    Generate a unique filename based on the current timestamp.
+    """
     timestamp = str(time.time()).replace(".", "")
-    file_extension = orig_name.split(".")[1]
+    file_extension = fileName.split(".")[1]
     return timestamp + "." + file_extension
+
+def generate_thumb(src, dest):
+    """
+    Create a thumbnail of the file using GraphicsMagick and return
+    the path to the created thumbnail.
+    """
+    config = ConfigParser.ConfigParser()
+    config.readfp(open('config.cfg'))
+    quality = config.getint('thumbs', 'quality')
+    dimensions = config.get('thumbs', 'dimensions')
+    i = Image(src)
+    i.quality(quality)
+    i.scale(dimensions)
+    i.write(dest)
+    return dest
 
 def transfer_to_s3(file_name):
     print "Transferring " + file_name + " to Amazon S3 as " + key
     dest = str(sender) + '/thumbs/' + key
     src = 'thumbs/' + key
-    im = Image(file_name)
-    im.quality(75)
-    im.scale('400x400')
-    im.write(src)
-    saved = s3.save(src, dest)
+    thumb = generate_thumb(file_name, 'thumbs/' + key)
+    saved = s3.save(thumb, dest)
     print "Transfer of " + key + " to Amazon S3 complete."
     return saved
 
 def post_to_server(saved):
-    # Open image file for reading (binary mode)
-    f = open(file_name, 'rb')
-    # Return Exif tags
-    tags = exifread.process_file(f, details=False)
+    tags = parse_exif(file_name)
     filesize = os.path.getsize(file_name)
     os.rename(file_name, 'full/' + key)
     payload = {
         "sender" : sender,
         "filesize": filesize,
         "fileid": key,
-        "dimensions": {
-            "width": 1700,
-            "height": 300
-        },
         "thumbnail": saved.generate_url(expires_in=0, query_auth=False),
-        "exif": parse_exif(tags)
+        "exif": tags
     }
-    r = requests.post('http://localhost:8080/photo/thumb',
-        data=json.dumps(payload), headers={'content-type': 'application/json'})
-    print r.status_code
+    print server.post('/photo/thumb', payload)
 
-def parse_exif(raw):
+def parse_exif(fileName):
+    """
+    Pull the EXIf info from a photo and sanitize iterit so for
+    sending as JSON by converting values to strings.
+    """
+    f = open(fileName, 'rb')
+    exif = exifread.process_file(f, details=False)
     parsed = {}
-    for key, value in raw.iteritems():
+    for key, value in exif.iteritems():
         parsed[key] = str(value)
     return parsed
+
+
+# Handle actions fired by gphoto2
 
 if os.environ.get("ACTION") == "init":
     if (os.path.isdir('thumbs') == False):

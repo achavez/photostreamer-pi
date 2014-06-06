@@ -1,9 +1,21 @@
 # Mac OSX system files
 .DS_Store
 
-# Ignore photo directories
+# Ignore photo directories and photos stored in root by gphoto2
 thumbs/
 full/
+*.jpg
 
 # Ignore populated config file
 config.cfg
+
+# Ignore database
+photostreamer.db
+
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# PIP logs
+pip-log.txt
+pip-delete-this-directory.txt
