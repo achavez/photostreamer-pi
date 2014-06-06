@@ -3,12 +3,14 @@ import os
 import time
 from pgmagick import Image
 import exifread
-import ConfigParser
 
 import s3
 import server
+import settings
 
 sender = 0
+
+cfg = settings.config()
 
 def generate_key(fileName):
     """
@@ -23,10 +25,8 @@ def generate_thumb(src, dest):
     Create a thumbnail of the file using GraphicsMagick and return
     the path to the created thumbnail.
     """
-    config = ConfigParser.ConfigParser()
-    config.readfp(open('config.cfg'))
-    quality = config.getint('thumbs', 'quality')
-    dimensions = config.get('thumbs', 'dimensions')
+    quality = cfg.getint('thumbs', 'quality')
+    dimensions = cfg.get('thumbs', 'dimensions')
     i = Image(src)
     i.quality(quality)
     i.scale(dimensions)
