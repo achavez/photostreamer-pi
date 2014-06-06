@@ -43,6 +43,14 @@ Once the bucket is setup, you'll want to generate credentials so the Pi can acce
 
 ...
 
+#### Setting up the buttons
+
+*Optional:* There's a bash script in the repository that can be used to listen to buttons on the Pi and execute photostreaming functions when they're pushed. The script is built to work with the buttons on Adafruit's [PiTFT](http://www.adafruit.com/products/1601), but you should be able to modify it to work with any of the GPIO pins.
+
+To use the script, make sure it's executable by running `sudo chmod 755 buttons.sh` from inside the repository. Then either run the script manually (`sudo bash buttons.sh`).
+
+Even better, add the script to your [rc.local](http://www.raspberrypi.org/documentation/linux/usage/rc-local.md) so it starts every time the Pi boots. To do that, add something like `sudo /home/pi/photostreamer-server/buttons.sh &` to the file somewhere before the `exit 0` line.
+
 ## Development
 
 This is a work in progress and pull requests/suggestions/issues are definitely welcome.
