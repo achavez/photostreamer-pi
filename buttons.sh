@@ -6,22 +6,22 @@ echo "23" > /sys/class/gpio/export
 # Set the input/output direction to input
 echo "in" > /sys/class/gpio/gpio23/direction
 # Set the starting value of the pin
-echo "high" > /sys/class/gpio/gpio23/value
+echo "1" > /sys/class/gpio/gpio23/value
 
 # Repeat for GPIO pin 22
 echo "22" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio22/direction
-echo "high" > /sys/class/gpio/gpio22/value
+echo "1" > /sys/class/gpio/gpio22/value
 
 # Repeat for GPIO pin 21
 echo "21" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio21/direction
-echo "high" > /sys/class/gpio/gpio21/value
+echo "1" > /sys/class/gpio/gpio21/value
 
 # Repeat for GPIO pin 18
 echo "18" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio18/direction
-echo "high" > /sys/class/gpio/gpio18/value
+echo "1" > /sys/class/gpio/gpio18/value
 
 # Wait for pin to go low
 while [ true ]
