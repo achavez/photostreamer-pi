@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import time
-import Image
+from PIL import Image
 import exifread
 
 import s3
@@ -26,7 +26,9 @@ def generate_thumb(src, dest):
     the path to the created thumbnail.
     """
     quality = cfg.getint('thumbs', 'quality')
-    dimensions = cfg.get('thumbs', 'dimensions')
+    width = cfg.getint('thumbs', 'width')
+    height = cfg.getint('thumbs', 'height')
+    size = width, height
     i = Image.open(src)
     i.thumbnail(size, Image.ANTIALIAS)
     i.save(dest, "JPEG", quality=quality)
