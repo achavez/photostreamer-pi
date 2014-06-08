@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import time
-from pgmagick import Image
+import Image
 import exifread
 
 import s3
@@ -27,10 +27,9 @@ def generate_thumb(src, dest):
     """
     quality = cfg.getint('thumbs', 'quality')
     dimensions = cfg.get('thumbs', 'dimensions')
-    i = Image(src)
-    i.quality(quality)
-    i.scale(dimensions)
-    i.write(dest)
+    i = Image.open(src)
+    i.thumbnail(size, Image.ANTIALIAS)
+    i.save(dest, "JPEG", quality=quality)
     return dest
 
 def transfer_to_s3(file_name):

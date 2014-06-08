@@ -12,9 +12,9 @@ There's also a shell script that can be run on startup, bind to [buttons on the 
 
 First things first, you'll need to install gphoto2. It's availabile using Apt, but that version is outdated and doesn't support many of the newer cameras. Fortunately, [gonzalo](https://github.com/gonzalo) has put together a great install script for gphoto2 and the Pi at [github.com/gonzalo/gphoto2-updater](https://github.com/gonzalo/gphoto2-updater), which you'll probably want to use unless you're going to compile it yourself.
 
-After gphoto2 is installed, run `sudo apt-get install graphicsmagick pip-python` to [GraphicsMagick](http://www.graphicsmagick.org/) and [pip](https://pip.pypa.io/en/latest/index.html).
+After gphoto2 is installed, run `sudo apt-get install pip-python` to install [pip](https://pip.pypa.io/en/latest/index.html).
 
-Next, clone this repository into your home directory. `cd` into the repository and run `pip install -r requirements.txt` to install the required Python packages.
+Next, clone this repository into your home directory. `cd` into the repository and run `sudo pip install -r requirements.txt` to install the required Python packages.
 
 #### Setting up S3
 
