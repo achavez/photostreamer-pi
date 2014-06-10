@@ -39,9 +39,11 @@ You'll also need to setup a bucket on Amazon S3. Ideally, this is an empty bucke
 
 Once the bucket is setup, you'll want to generate credentials so the Pi can access your bucket. The best way to do that is by [creating an IAM user](http://docs.aws.amazon.com/IAM/latest/UserGuide/Using_SettingUpUser.html). You'll need the IAM user's *access key ID* and a *secret access key*. Make sure to give the user write permission on your bucket.
 
-#### Configuring the script(s)
+#### Configuring the scripts
 
-...
+Before you can start pushing photos from the Pi you need to enter some key information, such as the Amazon Web Services credentials you just created. To do that, you'll need to create a configuration file. There's a [config-sample.cfg](https://github.com/achavez/photostreamer-pi/blob/master/config-sample.cfg) file provided as a template.
+
+Fill in your Amazon S3 information and the URL to your photostreamer-server and you're good to go. For *bucket* you only need to provide the bucket name, not the fully formed bucket URL. Also, feel free to tweak the thumbnail settings if you'd like to reduce the file size that's being sent for each photo. Save the file as config.cfg in the root of the photostreamer-pi repository.
 
 #### Setting up the buttons
 
@@ -50,6 +52,13 @@ Once the bucket is setup, you'll want to generate credentials so the Pi can acce
 To use the script, make sure it's executable by running `sudo chmod 755 buttons.sh` from inside the repository. Then either run the script manually (`sudo bash buttons.sh`).
 
 Even better, add the script to your [rc.local](http://www.raspberrypi.org/documentation/linux/usage/rc-local.md) so it starts every time the Pi boots. To do that, add something like `sudo /home/pi/photostreamer-server/buttons.sh &` to the file somewhere before the `exit 0` line.
+
+## Usage
+
+There are two scripts that you'll want to run:
+
+- `hook.py` should be used as `gphoto2`'s [hook script](http://www.gphoto.org/doc/manual/ref-gphoto2-cli.html). `hook.py` is responsible for taking each file shot by the camera, thumbnailing it, sending it to Amazon S3 and informing the photostreamer-server. Running `hook.py` is pretty simple. All you have to do is run `gphoto2 --capture-tethered --hook-script=hook.py` from the repository folder. The tethered capture mode downloads each file shot by the camera and passes its name to `hook.py` as an argument, which initiates the processing.
+- `background.py` handles all of the background tasks. It checks in with the photostreamer-server and if the server has requested high-resolution copies of any of the photos it uploads them and informs the server. For `background.py` you'll probably want to [setup a cron job](http://www.raspberrypi.org/documentation/linux/usage/cron.md). For example, running `crontab -e` and adding `*/5 * * * * /home/pi/photostreamer-pi/background.py` would run the background job every five minutes. How often you run it is up to you. The script is built so only one instance at a time is running, so you don't need to worry about running it so often that it breaks any of functionality.
 
 ## Development
 

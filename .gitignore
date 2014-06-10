@@ -6,6 +6,9 @@ thumbs/
 full/
 *.jpg
 
+# Ignore log files
+logs/*.log
+
 # Ignore populated config file
 config.cfg
 
