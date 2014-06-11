@@ -57,15 +57,15 @@ Even better, add the script to your [rc.local](http://www.raspberrypi.org/docume
 
 There are two scripts that you'll want to run:
 
-* [`hook.py`](https://github.com/achavez/photostreamer-pi/blob/master/hook.py) should be used as `gphoto2`'s [hook script](http://www.gphoto.org/doc/manual/ref-gphoto2-cli.html). `hook.py` is responsible for taking each file shot by the camera, thumbnailing it, sending it to Amazon S3 and informing the photostreamer-server. Running `hook.py` is pretty simple. All you have to do is run `gphoto2 --capture-tethered --hook-script=hook.py --keep --filename=tmp/%H%M%S.%C` from the repository folder.
-** `--capture-tethered` downloads each file shot by the camera as it's shot and passes its name to `hook.py` as an argument, which initiates the processing.
-** `--hook-script=hook.py` simply identifies which file to pass the captured image to.
-** `--keep` tells the camera to keep the photo on the inernal memory card. This is a precautionary measure but also allows for easy local editing of the photos using a more traditional photo workflow.
-** `--filename=tmp/%H%M%S.%C` saves all of the files with a timestamp as the file name to prevent files from overlapping if the script goes completely crazy.
-- [`background.py`](https://github.com/achavez/photostreamer-pi/blob/master/background.py) handles all of the background tasks. For `background.py` you'll probably want to [setup a cron job](http://www.raspberrypi.org/documentation/linux/usage/cron.md). For example, running `crontab -e` and adding `*/5 * * * * /home/pi/photostreamer-pi/background.py` would run the background job every five minutes. How often you run it is up to you. The script is built so only one instance at a time is running, so you don't need to worry about running it so often that it breaks any of functionality. The tasks handled by `background.py` include:
-1. checking in with the photostreamer-server and, if the server has requested high-resolution copies of any of the photos, uploading them and informing the server
-2. uploading any thumbnail photos to Amazon S3 that failed to upload during the first attempt
-3. notifying photostreamer-server of any photos that were uploaded to Amazon S3 but not sent to the server because of a network or server error
+* [`hook.py`](https://github.com/achavez/photostreamer-pi/blob/master/hook.py) should be used as `gphoto2`'s [hook script](http://www.gphoto.org/doc/manual/ref-gphoto2-cli.html). `hook.py` is responsible for taking each file shot by the camera, thumbnailing it, sending it to Amazon S3 and informing the photostreamer-server. Running `hook.py` is pretty simple. All you have to do is run `gphoto2 --capture-tethered --hook-script=hook.py --keep --filename=tmp/%H%M%S.%C` from the repository folder. The suggested flags make sure the photos are properly processed:
+	* `--capture-tethered` downloads each file shot by the camera as it's shot and passes its name to `hook.py` as an argument, which initiates the processing.
+	* `--hook-script=hook.py` simply identifies which file to pass the captured image to.
+	* `--keep` tells the camera to keep the photo on the inernal memory card. This is a precautionary measure but also allows for easy local editing of the photos using a more traditional photo workflow.
+	* `--filename=tmp/%H%M%S.%C` saves all of the files with a timestamp as the file name to prevent files from overlapping if the script goes completely crazy.
+* [`background.py`](https://github.com/achavez/photostreamer-pi/blob/master/background.py) handles all of the background tasks. For `background.py` you'll probably want to [setup a cron job](http://www.raspberrypi.org/documentation/linux/usage/cron.md). For example, running `crontab -e` and adding `*/5 * * * * /home/pi/photostreamer-pi/background.py` would run the background job every five minutes. How often you run it is up to you. The script is built so only one instance at a time is running, so you don't need to worry about running it so often that it breaks any of functionality. The tasks handled by `background.py` include:
+	* checking in with the photostreamer-server and, if the server has requested high-resolution copies of any of the photos, uploading them and informing the server
+	* uploading any thumbnail photos to Amazon S3 that failed to upload during the first attempt
+	* notifying photostreamer-server of any photos that were uploaded to Amazon S3 but not sent to the server because of a network or server error
 
 
 ## Development
