@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import pickledb
 import json
 
 import s3
@@ -40,13 +39,12 @@ def post_to_server(saved, fileId):
 
 l.debug("Starting background job.")
 
-pickle = pickledb.load('photostreamer.db', True)
-sending = pickle.get('sending')
+sending = db.get('sending')
 
 # There is no semaphore, so make one
 if sending == None:
     l.info("No semaphore found in database. Creating one.")
-    pickle.set('sending', False)
+    db.set('sending', False)
     sending = False
 
 # The script isn't running, so run it
@@ -54,11 +52,12 @@ if sending == False:
     l.debug("Semaphore is False. Running background jobs.")
 
     # Set a semaphore using PickleDB
-    pickle.set('sending', True)
+    db.set('sending', True)
 
     # Catch all exceptions here to make sure the semaphore doesn't get stuck
     # at True
     try:
+        sql = db.connect()
         # First, send full quality versions of any files that have been
         # requested by photostreamer-server
         response = server.get('/requests/' + str(sender))
@@ -76,7 +75,6 @@ if sending == False:
             l.info("No full-resolution photos have been requested.")
 
         # Then, send thumbnails that failed to send earlier
-        sql = db.connect()
         thumbs = sql['thumbs']
         if len(thumbs) > 0:
             l.info("Attempting to resend %d thumbnail photos to Amazon S3.",
@@ -119,11 +117,11 @@ if sending == False:
                 l.debug("Deleted POST with ID %d from the failures database.", success)
 
         # Clear the semaphore
-        pickle.set('sending', False)
+        db.set('sending', False)
 
     # Catch the exception, reset the semaphore and raise it anyway
     except:
-        pickle.set('sending', False)
+        db.set('sending', False)
         raise
 
 # The script is running, so don't run it for now
