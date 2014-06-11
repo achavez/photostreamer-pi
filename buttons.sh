@@ -6,7 +6,7 @@ echo "23" > /sys/class/gpio/export
 # Set the input/output direction to input
 echo "in" > /sys/class/gpio/gpio23/direction
 # Set the starting value of the pin
-echo "high" > /sys/class/gpio/gpio23/value
+echo "high" > /sys/class/gpio/gpio23/direction
 
 # Repeat for GPIO pin 22
 echo "22" > /sys/class/gpio/export
@@ -28,18 +28,19 @@ while [ true ]
 do
   if [ "$(cat /sys/class/gpio/gpio23/value)" == '0' ]
   then
+    echo "Launching photostreamer in tethered capture mode."
   	cd /home/pi/photostreamer-pi; gphoto2 --capture-tethered --hook-script=hook.py --keep --filename=tmp/%H%M%S.%C
   elif [ "$(cat /sys/class/gpio/gpio22/value)" == '0' ]
   then
-	echo "Button 2 pushed"
+	  echo "Button 2 pushed"
   elif [ "$(cat /sys/class/gpio/gpio21/value)" == '0' ]
   then
-	echo "Button 3 pushed"
+	  echo "Button 3 pushed"
   elif [ "$(cat /sys/class/gpio/gpio18/value)" == '0' ]
   then
-	echo "Shutting down"
-	halt &
-	exit 0
+	  echo "Shutting down."
+	  halt &
+	  exit 0
   fi
   # Throttle it back a little and only poll every 1 second
   sleep 1
