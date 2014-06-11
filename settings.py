@@ -7,6 +7,6 @@ def config():
 	try:
 		config.readfp(open('config.cfg'))
 		return config
-	except IOError as e:
+	except IOError:
 		l.exception("Error reading config.cfg file.")
 		raise

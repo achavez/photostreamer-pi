@@ -3,3 +3,4 @@ Pillow == 2.4.0
 requests == 2.3.0
 exifread == 1.4.2
 pickledb == 0.3
+dataset == 0.5.3

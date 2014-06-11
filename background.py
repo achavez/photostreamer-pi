@@ -4,6 +4,7 @@ import pickledb
 import s3
 import server
 import logger
+import db
 l = logger.setup('background');
 
 sender = 0
@@ -38,13 +39,13 @@ def post_to_server(saved, fileId):
 
 l.debug("Starting background job.")
 
-db = pickledb.load('photostreamer.db', True)
-sending = db.get('sending')
+pickle = pickledb.load('photostreamer.db', True)
+sending = pickle.get('sending')
 
 # There is no semaphore, so make one
 if sending == None:
     l.info("No semaphore found in database. Creating one.")
-    db.set('sending', False)
+    pickle.set('sending', False)
     sending = False
 
 # The script isn't running, so run it
@@ -52,7 +53,7 @@ if sending == False:
     l.debug("Semaphore is False. Running background jobs.")
 
     # Set a semaphore using PickleDB
-    db.set('sending', True)
+    pickle.set('sending', True)
 
     # Catch all exceptions here to make sure the semaphore doesn't get stuck
     # at True
@@ -72,11 +73,35 @@ if sending == False:
             pass
         else:
             l.info("No full-resolution photos have been requested.")
-        db.set('sending', False)
+        pickle.set('sending', False)
+
         # Then, send thumbnails that failed to send earlier
+        sql = db.connect()
+        thumbs = sql['thumbs']
+        if len(thumbs) > 0:
+            l.info("Attempting to resend %d thumbnail photos to Amazon S3.",
+                len(thumbs))
+            successes = list()
+            for thumb in thumbs:
+                saved = s3.save(thumb['src'], thumb['dest'])
+                if saved:
+                    l.info("Thumbnail photo %s transferred to Amazon S3 as %s",
+                        thumb['src'], thumb['dest'])
+                    successes.append(thumb['key'])
+                    server.post_thumb(thumb['src'], saved, thumb['key'])
+                else:
+                    l.warning("Sending thumbnail photo %s to Amazon S3 failed again.",
+                        thumb['src'])
+            # Delete sent photos from the database
+            for success in successes:
+                thumbs.delete(key=success)
+                l.debug("Deleted thumbnail photo %s from the failures database.", success)
+        else:
+            l.debug("No thumbnail photos need to be resent to Amazon S3.")
+
     # Catch the exception, reset the semaphore and raise it anyway
     except:
-        db.set('sending', False)
+        pickle.set('sending', False)
         raise
 
 # The script is running, so don't run it for now

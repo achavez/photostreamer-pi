@@ -2,11 +2,12 @@
 import os
 import time
 from PIL import Image
-import exifread
+from ConfigParser import NoOptionError
 
 import s3
 import server
 import settings
+import db
 import logger
 l = logger.setup('hook')
 cfg = settings.config()
@@ -26,9 +27,13 @@ def generate_thumb(src, dest):
     Create a thumbnail of the file using Pillow and return
     the path to the created thumbnail.
     """
-    quality = cfg.getint('thumbs', 'quality')
-    width = cfg.getint('thumbs', 'width')
-    height = cfg.getint('thumbs', 'height')
+    try:
+        quality = cfg.getint('thumbs', 'quality')
+        width = cfg.getint('thumbs', 'width')
+        height = cfg.getint('thumbs', 'height')
+    except NoOptionError as e:
+        l.error("Error reading a setting from the config.cfg file: %s", e)
+        raise
     size = width, height
     i = Image.open(src)
     i.thumbnail(size, Image.ANTIALIAS)
@@ -44,40 +49,16 @@ def transfer_to_s3(file_name):
     src = 'thumbs/' + key
     thumb = generate_thumb(file_name, 'thumbs/' + key)
     saved = s3.save(thumb, dest)
-    l.info("Thumbnail photo %s transferred to Amazon S3 as %s", file_name, key)
-    return saved
-
-def post_to_server(saved):
-    """
-    Notify photostreamer-server that a new thumbnail photo has been posted
-    to S3.
-    """
-    l.debug("Notifying photostreamer-server of thumbnail photo %s", key)
-    tags = parse_exif(file_name)
-    filesize = os.path.getsize(file_name)
-    # Move the full-resolution photo to the full directory and rename it
-    os.rename(file_name, 'full/' + key)
-    payload = {
-        "sender" : sender,
-        "filesize": filesize,
-        "fileid": key,
-        "thumbnail": saved.generate_url(expires_in=0, query_auth=False),
-        "exif": tags
-    }
-    server.post('/photo/thumb', payload)
-
-def parse_exif(fileName):
-    """
-    Pull the EXIf info from a photo and sanitize it so for sending as JSON
-    by converting values to strings.
-    """
-    f = open(fileName, 'rb')
-    exif = exifread.process_file(f, details=False)
-    parsed = {}
-    for key, value in exif.iteritems():
-        parsed[key] = str(value)
-    return parsed
-
+    if saved:
+        l.info("Thumbnail photo %s transferred to Amazon S3 as %s", file_name, key)
+        return saved
+    else:
+        l.warning("Sending thumbnail photo %s to Amazon S3 failed. Schedling for resending.",
+            file_name)
+        sql = db.connect()
+        thumbs = sql['thumbs']
+        thumbs.insert(dict(key=key, src=thumb, dest=dest))
+        return False
 
 # Handle actions fired by gphoto2
 
@@ -89,6 +70,12 @@ if os.environ.get("ACTION") == "init":
 
 if os.environ.get("ACTION") == "download":
     file_name = os.environ.get("ARGUMENT")
+    # Generate a unique filename
     key = generate_key(file_name)
-    saved = transfer_to_s3(file_name)
-    post_to_server(saved)
+    # Move the full-resolution file out of the temp folder
+    os.rename(file_name, 'full/' + key)
+    # Save a thumb to Amazon S3
+    saved = transfer_to_s3('full/' + key)
+    # And if that succeeds, notify photostreamer-server
+    if saved:
+        server.post_thumb('full/' + key, saved, key)
