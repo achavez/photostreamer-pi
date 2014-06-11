@@ -4,10 +4,11 @@
 # Ignore photo directories and photos stored in root by gphoto2
 thumbs/
 full/
+tmp/
 *.jpg
 
 # Ignore log files
-logs/*.log
+*.log
 
 # Ignore populated config file
 config.cfg

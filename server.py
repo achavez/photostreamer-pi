@@ -4,12 +4,13 @@ import os
 
 import settings
 import exif
+import db
 import logger
 l = logger.setup(__name__)
 
 sender = 0
 
-def post(endpoint, payload):
+def post(endpoint, payload, resend=False):
     """
     POST a json payload to the photostreamer-server
     """
@@ -18,17 +19,30 @@ def post(endpoint, payload):
     try:
         r = requests.post(url, 
             data=json.dumps(payload), headers={'content-type':'application/json'})
-        l.debug("POSTed %s to photostreamer-server endpoint %s.", payload, endpoint)
-        if r.status_code != 200:
+        if r.status_code == 200:
+            l.debug("POSTed %s to photostreamer-server endpoint %s.", payload, endpoint)
+            return True
+        else:
             l.error("Received HTTP status code %d while POSTing to %s.",
                 r.status_code, url)
+            if resend == False:
+                post_later(endpoint, payload)
+            return False
     except requests.ConnectionError:
         l.exception("Network error trying to POST to %s.", url)
+        if resend == False:
+            post_later(endpoint, payload)
+        return False
 
-
-        # Send failures to the database for resending later
-
-
+def post_later(endpoint, payload):
+    """
+    Store the POST data in the database for sending later.
+    """
+    sql = db.connect()
+    posts = sql['posts']
+    postId = posts.insert(dict(endpoint=endpoint, payload=json.dumps(payload)))
+    l.warning("Failed to send %s to photostreamer-server endpoint %s. Saved for resend as ID %d.",
+        payload, endpoint, postId)
 
 def get(endpoint):
     """

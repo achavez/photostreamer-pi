@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pickledb
+import json
 
 import s3
 import server
@@ -73,7 +74,6 @@ if sending == False:
             pass
         else:
             l.info("No full-resolution photos have been requested.")
-        pickle.set('sending', False)
 
         # Then, send thumbnails that failed to send earlier
         sql = db.connect()
@@ -98,6 +98,28 @@ if sending == False:
                 l.debug("Deleted thumbnail photo %s from the failures database.", success)
         else:
             l.debug("No thumbnail photos need to be resent to Amazon S3.")
+
+        # Finally, resend all POSTs that have failed to send
+        posts = sql['posts']
+        if len(posts) > 0:
+            l.info("Attempting to resend %d POSTs to photostreamer-server.",
+                len(posts))
+            successes = list()
+            for post in posts:
+                posted = server.post(post['endpoint'], json.loads(post['payload']), resend=True)
+                if posted:
+                    successes.append(post['id'])
+                    l.info("Resending POST with ID %d to photostreamer-server succeeded.",
+                        post['id'])
+                else:
+                    l.warning("Sending POST with ID %d to photostreamer-server failed again.",
+                        post['id'])
+            for success in successes:
+                posts.delete(id=success)
+                l.debug("Deleted POST with ID %d from the failures database.", success)
+
+        # Clear the semaphore
+        pickle.set('sending', False)
 
     # Catch the exception, reset the semaphore and raise it anyway
     except:
