@@ -11,25 +11,24 @@ echo "1" > /sys/class/gpio/gpio23/value
 # Repeat for GPIO pin 22
 echo "22" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio22/direction
-echo "1" > /sys/class/gpio/gpio22/value
+echo "high" > /sys/class/gpio/gpio22/direction
 
 # Repeat for GPIO pin 21
 echo "21" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio21/direction
-echo "1" > /sys/class/gpio/gpio21/value
+echo "high" > /sys/class/gpio/gpio21/direction
 
 # Repeat for GPIO pin 18
 echo "18" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio18/direction
-echo "1" > /sys/class/gpio/gpio18/value
+echo "high" > /sys/class/gpio/gpio18/direction
 
 # Wait for pin to go low
 while [ true ]
 do
   if [ "$(cat /sys/class/gpio/gpio23/value)" == '0' ]
   then
-  	echo "Button 1 pushed"
-    gphoto2 --capture-tethered --hook-script="/home/pi/photostreamer-pi/thumbs.py"
+  	cd /home/pi/photostreamer-pi; gphoto2 --capture-tethered --hook-script=hook.py --keep --filename=tmp/%H%M%S.%C
   elif [ "$(cat /sys/class/gpio/gpio22/value)" == '0' ]
   then
 	echo "Button 2 pushed"
