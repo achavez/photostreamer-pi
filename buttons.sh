@@ -6,7 +6,7 @@ echo "23" > /sys/class/gpio/export
 # Set the input/output direction to input
 echo "in" > /sys/class/gpio/gpio23/direction
 # Set the starting value of the pin
-echo "1" > /sys/class/gpio/gpio23/value
+echo "high" > /sys/class/gpio/gpio23/value
 
 # Repeat for GPIO pin 22
 echo "22" > /sys/class/gpio/export
