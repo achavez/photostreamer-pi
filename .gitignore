@@ -7,9 +7,6 @@ full/
 tmp/
 *.jpg
 
-# Ignore log files
-*.log
-
 # Ignore populated config file
 config.cfg
 
