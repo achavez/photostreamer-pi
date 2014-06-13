@@ -31,7 +31,7 @@ def connect():
     bucket = conn.get_bucket(aws_s3_bucket, validate=False)
     return bucket
 
-def save(src, dest):
+def save(src, dest, verbose=False):
     """
     Save a file to S3 and return the S3 object.
     """
@@ -39,7 +39,10 @@ def save(src, dest):
     s3 = Key(bucket)
     s3.key = dest
     try:
-        s3.set_contents_from_filename(src)
+        if verbose:
+            s3.set_contents_from_filename(src, cb=progress_update)
+        else:
+            s3.set_contents_from_filename(src)
         return s3
     except gaierror as e:
         l.error("Network error encountered trying to reach Amazon S3: %s", e)
@@ -50,3 +53,9 @@ def save(src, dest):
     except:
         l.exception("Uncaught exception while saving to Amazon S3.")
         return False
+
+def progress_update(sent, total):
+    """
+    Callback to display S3 upload progress.
+    """
+    l.debug("%d of %d Mb uploaded to Amazon S3.", sent / 1000000, total / 1000000)

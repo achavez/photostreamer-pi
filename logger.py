@@ -1,4 +1,4 @@
-import logging
+import logging, logging.handlers
 
 def setup(name=__name__):
 	"""

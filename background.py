@@ -16,7 +16,7 @@ def upload_full_image(fileId):
     l.debug("Transferring full-resolution photo %s to Amazon S3.", fileId)
     dest = str(sender) + '/full/' + fileId
     src = 'full/' + fileId
-    saved = s3.save(src, dest)
+    saved = s3.save(src, dest, verbose=True)
     if saved:
         l.info("Full-resolution photo %s transferred to Amazon S3.", fileId)
         return saved
