@@ -39,7 +39,7 @@ cp photostreamer-pi/config-sample.cfg photostreamer-pi/config.cfg
 echo "--------------------"
 echo "Setting up cron task"
 echo "--------------------"
-echo crontab -u pi -f photostreamer-pi/installer/cronjob
+crontab -u pi photostreamer-pi/installer/cronjob
 
 echo "---------------------"
 echo "Adding startup script"
