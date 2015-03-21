@@ -24,7 +24,7 @@ echo "-------------------------"
 echo "Downloading Photostreamer"
 echo "-------------------------"
 git clone https://github.com/achavez/photostreamer-pi.git
-chown -R pi:pi photostreamer
+chown -R pi:pi photostreamer-pi
 
 echo "------------------------------"
 echo "Installing Python dependencies"
@@ -39,12 +39,12 @@ cp photostreamer-pi/config-sample.cfg photostreamer-pi/config.cfg
 echo "--------------------"
 echo "Setting up cron task"
 echo "--------------------"
-echo "* * * * * cd /home/pi/photostreamer-pi && python background.py"|crontab -u pi
+echo crontab -u pi -f photostreamer-pi/installer/cronjob
 
 echo "---------------------"
 echo "Adding startup script"
 echo "---------------------"
-cp photostreamer-pi/photostreamer /etc/init.d/photostreamer
+cp photostreamer-pi/installer/photostreamer /etc/init.d/photostreamer
 chmod 755 /etc/init.d/photostreamer
 update-rc.d photostreamer defaults
 
