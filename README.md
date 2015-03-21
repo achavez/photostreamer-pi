@@ -16,7 +16,7 @@ The easiest way to setup your Pi to use Photostreamer is using the install scrip
 
   ```
   $ cd ~
-  $ wget https://raw.githubusercontent.com/achavez/photostreamer-pi/master/installer.sh
+  $ wget https://raw.githubusercontent.com/achavez/photostreamer-pi/master/installer/installer.sh
   ```
 4. Make the installer executable and run it.
 
