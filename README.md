@@ -13,11 +13,13 @@ The easiest way to setup your Pi to use Photostreamer is using the install scrip
 1. Setup your Pi using NOOBS using the instructions on this page: http://www.raspberrypi.org/help/noobs-setup/
 2. Configure your Pi's wifi settings using any of the methods on this page: http://www.raspberrypi.org/documentation/configuration/wireless/
 3. Download the installer to the home directory:
+
   ```
   $ cd ~
   $ wget https://raw.githubusercontent.com/achavez/photostreamer-pi/master/installer.sh
   ```
 4. Make the installer executable and run it.
+
   ```
   $ chmod +x installer.sh
   $ sudo ./installer.sh
@@ -56,17 +58,20 @@ Assuming you're connected to wifi, using the Pi to stream photos should be as si
 
 If the photos you're shooting aren't showing up online there are a few things to check:
 - Make sure you're connection to the Internet is working. For example, try using the `ping` command, which will yield an error if you're Internet connection isn't working:
+
   ```
-	$ ping -c 5 google.com
-	```
+  $ ping -c 5 google.com
+  ```
 - Check the Photostreamer logs, which are at `/home/pi/photostreamer/logs/photostreamer.log`. You can use the `tail` command to follow them and watch for updates, which may be helpful for debugging in realtime:
-	```
-	$ tail -f /home/pi/photostreamer/logs/photostreamer.log
-	```
+
+  ```
+  $ tail -f /home/pi/photostreamer/logs/photostreamer.log
+  ```
 - Ensure that gphoto2 is able to connect to your camera:
-	```
-	$ gphoto2 --auto-detect
-	```
+
+  ```
+  $ gphoto2 --auto-detect
+  ```
 - Also, keep in mind that this project is a work in progress and it's definitely possible that there's an undiscovered bug. If you think you've found one, please [file a bug report](https://github.com/achavez/photostreamer-pi/issues/new) and let us know.
 
 ## Development
