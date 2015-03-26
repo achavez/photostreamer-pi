@@ -35,6 +35,7 @@ echo "--------------------------"
 echo "Creating blank config flie"
 echo "--------------------------"
 cp photostreamer-pi/config-sample.cfg photostreamer-pi/config.cfg
+chown pi:pi photostreamer-pi/config.cfg
 
 echo "--------------------"
 echo "Setting up cron task"

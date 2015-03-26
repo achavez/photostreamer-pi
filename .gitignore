@@ -9,6 +9,7 @@ tmp/
 
 # Ignore populated config file
 config.cfg
+credentials.csv
 
 # Ignore database
 photostreamer.db
