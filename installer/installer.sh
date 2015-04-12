@@ -31,11 +31,14 @@ echo "Installing Python dependencies"
 echo "------------------------------"
 pip install -r photostreamer-pi/requirements.txt
 
-echo "--------------------------"
-echo "Creating blank config flie"
-echo "--------------------------"
+echo "---------------------------------------------"
+echo "Creating blank config flie, photo directories"
+echo "---------------------------------------------"
+mkdir photostreamer-pi/tmp
+mkdir photostreamer-pi/full
+mkdir photostreamer-pi/thumbs
 cp photostreamer-pi/config-sample.cfg photostreamer-pi/config.cfg
-chown pi:pi photostreamer-pi/config.cfg
+chown -R pi:pi photostreamer-pi
 
 echo "--------------------"
 echo "Setting up cron task"
