@@ -78,6 +78,7 @@ pip-selfcheck.json
 *.pyc
 __pycache__/
 local_settings.py
+db.sqlite*
 
 
 ### OSX ###
