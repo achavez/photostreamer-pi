@@ -1,0 +1,14 @@
+machine:
+  python:
+    version: 3.4.2
+general:
+  artifacts:
+    - "~/htmlcov"
+dependencies:
+  pre:
+    - pip install coverage codecov flake8
+test:
+  override:
+    - make test
+  post:
+    - codecov
